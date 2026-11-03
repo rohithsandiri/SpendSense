@@ -1,3 +1,9 @@
 node_modules/
 .env
 logs/
+
+# Go
+/backend/server
+/backend/spendsense-backend
+*.test
+*.out

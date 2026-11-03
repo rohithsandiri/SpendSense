@@ -1,16 +1,23 @@
 version: '3.8'
 
 services:
-  mongodb:
-    image: mongo:7
-    container_name: spendsense-mongo
+  postgres:
+    image: postgres:16
+    container_name: spendsense-postgres
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - "5432:5432"
     environment:
-      MONGO_INITDB_DATABASE: spendsense
+      POSTGRES_DB: spendsense
+      POSTGRES_USER: spendsense
+      POSTGRES_PASSWORD: spendsense
     volumes:
-      - mongo_data:/data/db
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spendsense -d spendsense"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - spendsense
 
@@ -21,13 +28,13 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - MONGO_URI=mongodb://mongodb:27017/spendsense
+      - DATABASE_URL=postgres://spendsense:spendsense@postgres:5432/spendsense?sslmode=disable
       - JWT_SECRET=spendsense_secret_2026
       - LOGSTASH_HOST=logstash
       - LOGSTASH_PORT=5044
-      - NODE_ENV=production
     depends_on:
-      - mongodb
+      postgres:
+        condition: service_healthy
     networks:
       - spendsense
 
@@ -43,7 +50,7 @@ services:
       - spendsense
 
 volumes:
-  mongo_data:
+  pg_data:
 
 networks:
   spendsense:

@@ -11,15 +11,16 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/YuvrajDesh/SpendSense.git'
+                git branch: 'main', url: 'https://github.com/rohithsandiri/SpendSense.git'
             }
         }
 
         stage('Run Tests') {
             steps {
                 dir('backend') {
-                    sh 'npm install'
-                    sh 'npm test'
+                    sh 'go build ./...'
+                    sh 'go vet ./...'
+                    sh 'go test ./...'
                 }
                 dir('frontend') {
                     sh 'npm install'
